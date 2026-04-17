@@ -17,8 +17,8 @@ export function TrainerPage({ scenario, session }: TrainerPageProps) {
   const [finishedSession, setFinishedSession] = useState<TrainerSession | null>(null);
 
   const elementOptions = useMemo(() => {
-    return scenario.json_structure.pages.flatMap((page) =>
-      page.elements.flatMap((element) => {
+    return scenario.json_structure.pages.flatMap((page) => {
+      const pageOptions = page.elements.flatMap((element) => {
         const baseOption = {
           id: element.id,
           label: getElementLabel(element),
@@ -29,6 +29,7 @@ export function TrainerPage({ scenario, session }: TrainerPageProps) {
           if (element.type === "imageCarousel") {
             return [
               baseOption,
+              { id: `${element.id}-counter`, label: "Счетчик галереи", pageTitle: page.title },
               { id: `${element.id}-prev`, label: "Стрелка влево галереи", pageTitle: page.title },
               { id: `${element.id}-next`, label: "Стрелка вправо галереи", pageTitle: page.title },
             ];
@@ -57,8 +58,18 @@ export function TrainerPage({ scenario, session }: TrainerPageProps) {
           { id: `${element.id}-rating`, label: "Рейтинг карточки", pageTitle: page.title },
           { id: `${element.id}-price`, label: "Цена карточки", pageTitle: page.title },
         ];
-      }),
-    );
+      });
+
+      if (page.id === "results") {
+        pageOptions.unshift({
+          id: "results-search-summary",
+          label: "Сводка поиска",
+          pageTitle: page.title,
+        });
+      }
+
+      return pageOptions;
+    });
   }, [scenario.json_structure.pages]);
 
   async function submitBug(form: BugFormState) {

@@ -95,9 +95,72 @@ p {
   display: grid;
   gap: 7px;
   min-width: 0;
+  position: relative;
   color: #707070;
   font-size: 14px;
   font-weight: 700;
+}
+
+.field-label-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+}
+
+.field-tooltip-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 1px solid #c8d1c2;
+  border-radius: 50%;
+  color: #5d6f5a;
+  background: #f4f7f2;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.field-tooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 12;
+  width: min(420px, calc(100vw - 48px));
+  border: 1px solid #d9ded6;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #3d3d3d;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(45, 50, 43, 0.15);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.field-label-wrapper:hover .field-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.field-tooltip strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #526d50;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.field-tooltip ul {
+  margin: 0;
+  padding-left: 16px;
+  display: grid;
+  gap: 4px;
 }
 
 .field input,
@@ -110,6 +173,94 @@ p {
   padding: 13px 14px;
   color: #252525;
   background: #ffffff;
+}
+
+.searchable-select .select-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 42px;
+  align-items: center;
+  border: 1px solid #d9ded6;
+  border-radius: 8px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.searchable-select .select-control input {
+  border: 0;
+  border-radius: 0;
+  padding-right: 10px;
+}
+
+.searchable-select .select-control button {
+  width: 42px;
+  height: 46px;
+  border: 0;
+  border-left: 1px solid #e1e3de;
+  color: #6f7f6c;
+  background: #f8faf7;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.searchable-select .select-options {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  z-index: 11;
+  margin: 0;
+  padding: 6px;
+  border: 1px solid #d9ded6;
+  border-radius: 8px;
+  list-style: none;
+  background: #ffffff;
+  box-shadow: 0 14px 22px rgba(45, 50, 43, 0.12);
+}
+
+.searchable-select .select-options li {
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: #3a3a3a;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.searchable-select .select-options li:hover {
+  background: #f1f5ee;
+}
+
+.searchable-select .select-options .select-options-empty {
+  color: #8b8b8b;
+  cursor: default;
+}
+
+.field-invalid input {
+  border-color: #d66b6b;
+  box-shadow: 0 0 0 1px rgba(214, 107, 107, 0.15);
+}
+
+.field-invalid .select-control {
+  border-color: #d66b6b;
+  box-shadow: 0 0 0 1px rgba(214, 107, 107, 0.15);
+}
+
+.field-invalid .guest-picker-control {
+  border-color: #d66b6b;
+  box-shadow: 0 0 0 1px rgba(214, 107, 107, 0.15);
+}
+
+.field-error {
+  color: #b54444;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.field-feedback {
+  min-height: 16px;
+  color: #8b8b8b;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .field textarea {
@@ -132,6 +283,11 @@ p {
 }
 
 .primary-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   border: 0;
   border-radius: 8px;
   padding: 13px 18px;
@@ -140,9 +296,62 @@ p {
   font-weight: 700;
 }
 
+.button-field {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+.button-field-spacer {
+  visibility: hidden;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.button-field .primary-button {
+  width: 100%;
+  min-height: 48px;
+}
+
+.button-tooltip-trigger {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  border-color: rgba(255, 255, 255, 0.7);
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.2);
+  font-size: 11px;
+  pointer-events: none;
+}
+
+.button-tooltip {
+  left: auto;
+  right: 0;
+  min-width: 280px;
+  max-width: min(420px, calc(100vw - 48px));
+  text-align: left;
+}
+
+#booking-submit .button-tooltip {
+  top: auto;
+  bottom: calc(100% + 8px);
+}
+
+.primary-button:hover .button-tooltip,
+.primary-button:focus-visible .button-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
 .primary-button:disabled {
   cursor: default;
-  opacity: 0.7;
+  opacity: 1;
+  color: #f7f7f7;
+  background: #b9beb5;
 }
 
 .secondary-button {
@@ -290,6 +499,29 @@ p {
   font-weight: 700;
 }
 
+.carousel-counter {
+  gap: 6px;
+  cursor: pointer;
+}
+
+.carousel-tooltip {
+  left: 50%;
+  right: auto;
+  transform: translate(-50%, -4px);
+  min-width: 320px;
+}
+
+.carousel-counter:hover .carousel-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
+
+.carousel-controls button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
 .date-range {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -317,7 +549,7 @@ p {
   background: #ffffff;
 }
 
-.nights-summary strong {
+.nights-summary > strong {
   color: #252525;
   font-size: 18px;
 }
@@ -529,6 +761,34 @@ p {
   margin-top: 32px;
 }
 
+.results-search-summary {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+  border: 1px solid #dde2d8;
+  border-radius: 8px;
+  padding: 12px 14px;
+  color: #707070;
+  font-size: 14px;
+  font-weight: 700;
+  background: #f8faf7;
+}
+
+.results-search-summary .field-tooltip {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.results-search-summary .field-tooltip li {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.results-search-summary > strong {
+  color: #526d50;
+  font-size: 16px;
+}
+
 .simulator .scenario-surface:has(#forest-house-card) {
   grid-template-columns: repeat(12, minmax(0, 1fr));
   align-items: start;
@@ -539,22 +799,35 @@ p {
 }
 
 .simulator .scenario-surface:has(#forest-house-card) #results-check-in,
-.simulator .scenario-surface:has(#forest-house-card) #results-check-out {
+.simulator .scenario-surface:has(#forest-house-card) #results-check-out,
+.simulator .scenario-surface:has(#forest-house-card) #results-guests,
+.simulator .scenario-surface:has(#forest-house-card) #results-search {
   grid-column: span 3;
+  align-self: stretch;
+  min-height: 0;
 }
 
 .simulator .scenario-surface:has(#forest-house-card) #results-guests {
-  grid-column: span 3;
-  align-self: end;
+  display: grid;
 }
 
 .simulator .scenario-surface:has(#forest-house-card) #results-search {
-  grid-column: span 3;
+  margin-top: 0;
 }
 
+.simulator .scenario-surface:has(#forest-house-card) #results-check-in,
+.simulator .scenario-surface:has(#forest-house-card) #results-check-out,
+.simulator .scenario-surface:has(#forest-house-card) #results-guests,
 .simulator .scenario-surface:has(#forest-house-card) #results-search {
-  align-self: end;
-  min-height: 48px;
+  grid-template-rows: minmax(18px, auto) minmax(48px, auto) 16px;
+}
+
+.simulator .scenario-surface:has(#forest-house-card) #results-search .button-field-spacer {
+  display: block;
+}
+
+.simulator .scenario-surface:has(#forest-house-card) #results-search .field-feedback {
+  visibility: hidden;
 }
 
 .simulator .scenario-surface:has(#forest-house-card) #back-to-search {
@@ -566,11 +839,16 @@ p {
 
 .simulator .scenario-surface:has(#forest-house-card) .scenario-card {
   grid-column: span 6;
-  align-self: start;
+  align-self: stretch;
+  height: 100%;
 }
 
-.simulator .scenario-surface:has(#forest-house-card) #results-guests small {
-  display: none;
+.simulator .scenario-surface:has(#forest-house-card) .scenario-card .scenario-card-body {
+  grid-template-rows: auto auto 1fr;
+}
+
+.simulator .scenario-surface:has(#forest-house-card) .scenario-card .scenario-card-footer {
+  align-self: end;
 }
 
 .simulator .scenario-surface:has(#details-gallery) {
@@ -783,5 +1061,9 @@ p {
   .simulator .scenario-surface:has(#forest-house-card) #results-guests,
   .simulator .scenario-surface:has(#forest-house-card) #results-search {
     grid-column: 1;
+  }
+
+  .simulator .scenario-surface:has(#forest-house-card) #results-search {
+    margin-top: 0;
   }
 }

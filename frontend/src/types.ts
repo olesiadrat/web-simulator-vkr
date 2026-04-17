@@ -36,6 +36,7 @@ export type ScenarioElement = {
   rating?: string;
   price?: string;
   helperText?: string;
+  requirements?: string[];
   detailsDescription?: string;
   location?: string;
   options?: string[];
