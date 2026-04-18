@@ -35,8 +35,10 @@ export function App() {
     return <main className="page">Загрузка сценариев...</main>;
   }
 
+  const isTrainerScreen = Boolean(selectedScenario && session);
+
   return (
-    <main className="page">
+    <main className={isTrainerScreen ? "page page--trainer" : "page"}>
       <header className="app-header">
         <div>
           <p className="eyebrow">ВКР MVP</p>
@@ -59,4 +61,3 @@ export function App() {
     </main>
   );
 }
-

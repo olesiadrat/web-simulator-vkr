@@ -1,11 +1,12 @@
-import type { BugReport } from "../types";
+import type { LocalBugReport } from "../types";
 
 type BugReportListProps = {
-  bugs: BugReport[];
+  bugs: LocalBugReport[];
   onRefresh: () => void;
+  onSelectBug: (bug: LocalBugReport) => void;
 };
 
-export function BugReportList({ bugs, onRefresh }: BugReportListProps) {
+export function BugReportList({ bugs, onRefresh, onSelectBug }: BugReportListProps) {
   return (
     <>
       <div className="bugs-header">
@@ -16,26 +17,28 @@ export function BugReportList({ bugs, onRefresh }: BugReportListProps) {
       </div>
       <div className="bug-list">
         {bugs.length === 0 ? (
-          <p className="muted">Пока нет сохраненных баг-репортов.</p>
+          <p className="muted">Пока нет сохранённых баг-репортов.</p>
         ) : (
           bugs.map((bug) => (
-            <article className="bug-item" key={bug.id}>
+            <button className="bug-item bug-item-button" key={bug.id} type="button" onClick={() => onSelectBug(bug)}>
               <div className="bug-item-header">
-                <strong>{bug.ui_element || "Без элемента"}</strong>
-                <time dateTime={bug.created_at}>
-                  {new Intl.DateTimeFormat("ru-RU", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    day: "2-digit",
-                    month: "2-digit",
-                  }).format(new Date(bug.created_at))}
-                </time>
+                <strong>{bug.element || "Без элемента"}</strong>
+                <span>#{bug.id}</span>
               </div>
-              <p>{bug.description}</p>
-            </article>
+              <p>{truncateBugDescription(bug.description)}</p>
+            </button>
           ))
         )}
       </div>
     </>
   );
+}
+
+function truncateBugDescription(text: string) {
+  const normalizedText = text.trim().replace(/\s+/g, " ");
+  if (normalizedText.length <= 60) {
+    return normalizedText;
+  }
+
+  return normalizedText.slice(0, 57) + "...";
 }

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import type { Scenario, ScenarioElement } from "../types";
 
@@ -32,6 +32,21 @@ export function ScenarioRenderer({ scenario, selectedElementId, onElementSelect 
   const [bookingGuestCountInput, setBookingGuestCountInput] = useState("2");
   const [bookingNotice, setBookingNotice] = useState<string | null>(null);
   const [selectedStay, setSelectedStay] = useState<StayData | null>(null);
+
+  useEffect(() => {
+    if (!isBookingModalOpen) {
+      return undefined;
+    }
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsBookingModalOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [isBookingModalOpen]);
 
   const defaultStay = useMemo(() => {
     const resultsPage = scenario.json_structure.pages.find((page) => page.id === "results");
@@ -503,7 +518,12 @@ export function ScenarioRenderer({ scenario, selectedElementId, onElementSelect 
       };
 
       return (
-        <div className={getElementClassName(element, ["guest-picker", guestError ? "field-invalid" : ""].join(" "))} key={element.id} id={element.id}>
+        <div
+          className={getElementClassName(element, ["guest-picker", guestError ? "field-invalid" : ""].join(" "))}
+          key={element.id}
+          id={element.id}
+          onClick={() => onElementSelect(element)}
+        >
           {renderFieldLabel(element)}
           <div className="guest-picker-control">
             <button type="button" onClick={() => updateGuests(guests - 1)}>
@@ -925,6 +945,11 @@ export function ScenarioRenderer({ scenario, selectedElementId, onElementSelect 
   const resultsSummaryNights = Math.max(0, resultsSummaryNightsRaw - 1);
   const resultsSummaryText = `${resultsSummaryLocation || "Локация не выбрана"} · ${formatNights(resultsSummaryNights)}`;
   const shouldShowPageSubtitle = Boolean(pageSubtitle) && currentPageId !== "results";
+  const bookingModalGuestsElement: ScenarioElement = {
+    id: "booking-modal-guests",
+    type: "guestPicker",
+    label: "Количество гостей (модальное окно бронирования)",
+  };
 
   return (
       <>
@@ -942,7 +967,15 @@ export function ScenarioRenderer({ scenario, selectedElementId, onElementSelect 
       )}
       <div className="scenario-surface">{pageElements.map(renderElement)}</div>
       {isBookingModalOpen && (
-        <div className="modal-backdrop" role="presentation">
+        <div
+          className="modal-backdrop"
+          role="presentation"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) {
+              setIsBookingModalOpen(false);
+            }
+          }}
+        >
           <section className="booking-modal" role="dialog" aria-modal="true" aria-labelledby="booking-modal-title">
             <div className="modal-header">
               <h2 id="booking-modal-title">Данные гостя</h2>
@@ -965,8 +998,19 @@ export function ScenarioRenderer({ scenario, selectedElementId, onElementSelect 
             </label>
             <label className={bookingGuestCountError ? "field field-invalid" : "field"}>
               <span>Количество гостей</span>
-              <div className="guest-picker-control modal-guest-picker">
-                <button type="button" onClick={() => updateModalGuests(modalGuests - 1)}>
+              <div
+                className={getElementClassName(bookingModalGuestsElement, "guest-picker-control modal-guest-picker")}
+                id={bookingModalGuestsElement.id}
+                onClick={() => onElementSelect(bookingModalGuestsElement)}
+              >
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onElementSelect(bookingModalGuestsElement);
+                    updateModalGuests(modalGuests - 1);
+                  }}
+                >
                   -
                 </button>
                 <input
@@ -976,6 +1020,7 @@ export function ScenarioRenderer({ scenario, selectedElementId, onElementSelect 
                   inputMode="numeric"
                   autoComplete="off"
                   value={bookingGuestCountInput}
+                  onFocus={() => onElementSelect(bookingModalGuestsElement)}
                   onChange={(event) => {
                     setBookingGuestCountInput(event.target.value);
                   }}
@@ -988,7 +1033,14 @@ export function ScenarioRenderer({ scenario, selectedElementId, onElementSelect 
                     setValues((current) => ({ ...current, "booking-guests": normalizedValue, guests: normalizedValue }));
                   }}
                 />
-                <button type="button" onClick={() => updateModalGuests(modalGuests + 1)}>
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onElementSelect(bookingModalGuestsElement);
+                    updateModalGuests(modalGuests + 1);
+                  }}
+                >
                   +
                 </button>
               </div>

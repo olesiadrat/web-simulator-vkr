@@ -89,3 +89,17 @@ export type BugReport = {
   ui_element: string;
   created_at: string;
 };
+
+export type BugSummaryData = {
+  description: string;
+  steps: string[];
+  expected: string;
+  actual: string;
+  element: string;
+};
+
+export type LocalBugReport = {
+  id: number;
+} & BugSummaryData;
+
+export type BugModalMode = "preview" | "view" | "edit";
