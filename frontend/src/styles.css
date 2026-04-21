@@ -32,6 +32,8 @@ textarea {
 }
 
 .page--trainer {
+  width: min(1740px, calc(100% - 48px));
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -98,8 +100,8 @@ p {
 
 .trainer-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 380px;
-  gap: 24px;
+  grid-template-columns: minmax(0, 1fr) clamp(340px, 28vw, 450px);
+  gap: 28px;
   height: 100%;
   min-height: 460px;
   min-width: 0;
@@ -811,7 +813,7 @@ p {
 
 .simulator .scenario-surface:has(#hero-image) {
   max-width: 980px;
-  margin: 0 auto;
+  margin: 0;
 }
 
 .simulator .scenario-surface:has(#hero-image) .field,

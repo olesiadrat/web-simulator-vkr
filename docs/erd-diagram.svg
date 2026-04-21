@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="980" viewBox="0 0 1600 980">
+  <defs>
+    <style>
+      .title { font: 700 30px 'Arial', sans-serif; fill: #2f3845; }
+      .entity-header { font: 700 26px 'Arial', sans-serif; fill: #27313f; }
+      .field { font: 500 20px 'Arial', sans-serif; fill: #2f3845; }
+      .tag { font: 700 16px 'Arial', sans-serif; fill: #677182; }
+      .relation { font: 600 19px 'Arial', sans-serif; fill: #4a5563; }
+      .icon { font: 20px 'Arial', sans-serif; fill: #59657a; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#697789"/>
+    </marker>
+  </defs>
+
+  <rect width="100%" height="100%" fill="#eef1f5"/>
+  <text x="800" y="60" text-anchor="middle" class="title">ER-диаграмма базы данных веб-тренажёра</text>
+
+  <!-- Сценарии -->
+  <rect x="80" y="120" width="620" height="330" rx="12" fill="#ffffff" stroke="#9ca9bb" stroke-width="2"/>
+  <rect x="80" y="120" width="620" height="54" rx="12" fill="#cdd9eb"/>
+  <text x="390" y="155" text-anchor="middle" class="entity-header">Сценарии</text>
+  <line x1="80" y1="174" x2="700" y2="174" stroke="#b9c3d2" stroke-width="1.5"/>
+  <line x1="140" y1="174" x2="140" y2="450" stroke="#c8d0dc" stroke-width="1.5"/>
+  <line x1="635" y1="174" x2="635" y2="450" stroke="#c8d0dc" stroke-width="1.5"/>
+  <g>
+    <line x1="80" y1="228" x2="700" y2="228" stroke="#e0e6ee" stroke-width="1"/>
+    <line x1="80" y1="282" x2="700" y2="282" stroke="#e0e6ee" stroke-width="1"/>
+    <line x1="80" y1="336" x2="700" y2="336" stroke="#e0e6ee" stroke-width="1"/>
+    <line x1="80" y1="390" x2="700" y2="390" stroke="#e0e6ee" stroke-width="1"/>
+  </g>
+  <text x="104" y="210" class="icon">🔑</text><text x="160" y="212" class="field">scenario_id</text><text x="655" y="212" class="tag">PK</text>
+  <text x="160" y="266" class="field">название</text>
+  <text x="160" y="320" class="field">json_структура</text>
+  <text x="160" y="374" class="field">описание</text>
+  <text x="160" y="428" class="field">создано (timestamp)</text>
+
+  <!-- Сессии -->
+  <rect x="900" y="120" width="620" height="280" rx="12" fill="#ffffff" stroke="#9ca9bb" stroke-width="2"/>
+  <rect x="900" y="120" width="620" height="54" rx="12" fill="#cdd9eb"/>
+  <text x="1210" y="155" text-anchor="middle" class="entity-header">Сессии</text>
+  <line x1="900" y1="174" x2="1520" y2="174" stroke="#b9c3d2" stroke-width="1.5"/>
+  <line x1="960" y1="174" x2="960" y2="400" stroke="#c8d0dc" stroke-width="1.5"/>
+  <line x1="1455" y1="174" x2="1455" y2="400" stroke="#c8d0dc" stroke-width="1.5"/>
+  <g>
+    <line x1="900" y1="230" x2="1520" y2="230" stroke="#e0e6ee" stroke-width="1"/>
+    <line x1="900" y1="286" x2="1520" y2="286" stroke="#e0e6ee" stroke-width="1"/>
+    <line x1="900" y1="342" x2="1520" y2="342" stroke="#e0e6ee" stroke-width="1"/>
+  </g>
+  <text x="924" y="212" class="icon">🔑</text><text x="980" y="212" class="field">session_id</text><text x="1472" y="212" class="tag">PK</text>
+  <text x="924" y="268" class="icon">🔑</text><text x="980" y="268" class="field">scenario_id</text><text x="1472" y="268" class="tag">FK</text>
+  <text x="980" y="324" class="field">начало_время</text>
+  <text x="980" y="380" class="field">конец_время</text>
+
+  <!-- Эталонные баги -->
+  <rect x="80" y="520" width="620" height="300" rx="12" fill="#ffffff" stroke="#9ca9bb" stroke-width="2"/>
+  <rect x="80" y="520" width="620" height="54" rx="12" fill="#d8e6d1"/>
+  <text x="390" y="555" text-anchor="middle" class="entity-header">Эталонные баги</text>
+  <line x1="80" y1="574" x2="700" y2="574" stroke="#b9c3d2" stroke-width="1.5"/>
+  <line x1="140" y1="574" x2="140" y2="820" stroke="#c8d0dc" stroke-width="1.5"/>
+  <line x1="635" y1="574" x2="635" y2="820" stroke="#c8d0dc" stroke-width="1.5"/>
+  <g>
+    <line x1="80" y1="623" x2="700" y2="623" stroke="#e0e6ee" stroke-width="1"/>
+    <line x1="80" y1="672" x2="700" y2="672" stroke="#e0e6ee" stroke-width="1"/>
+    <line x1="80" y1="721" x2="700" y2="721" stroke="#e0e6ee" stroke-width="1"/>
+    <line x1="80" y1="770" x2="700" y2="770" stroke="#e0e6ee" stroke-width="1"/>
+  </g>
+  <text x="104" y="608" class="icon">🔑</text><text x="160" y="610" class="field">reference_bug_id</text><text x="655" y="610" class="tag">PK</text>
+  <text x="104" y="657" class="icon">🔑</text><text x="160" y="659" class="field">scenario_id</text><text x="655" y="659" class="tag">FK</text>
+  <text x="160" y="708" class="field">описание_ошибки</text>
+  <text x="160" y="757" class="field">expected_behavior</text>
+  <text x="160" y="806" class="field">ui_element</text>
+
+  <!-- Баг-репорты -->
+  <rect x="900" y="480" width="620" height="360" rx="12" fill="#ffffff" stroke="#9ca9bb" stroke-width="2"/>
+  <rect x="900" y="480" width="620" height="54" rx="12" fill="#d7e3f3"/>
+  <text x="1210" y="515" text-anchor="middle" class="entity-header">Баг-репорты</text>
+  <line x1="900" y1="534" x2="1520" y2="534" stroke="#b9c3d2" stroke-width="1.5"/>
+  <line x1="960" y1="534" x2="960" y2="840" stroke="#c8d0dc" stroke-width="1.5"/>
+  <line x1="1455" y1="534" x2="1455" y2="840" stroke="#c8d0dc" stroke-width="1.5"/>
+  <g>
+    <line x1="900" y1="585" x2="1520" y2="585" stroke="#e0e6ee" stroke-width="1"/>
+    <line x1="900" y1="636" x2="1520" y2="636" stroke="#e0e6ee" stroke-width="1"/>
+    <line x1="900" y1="687" x2="1520" y2="687" stroke="#e0e6ee" stroke-width="1"/>
+    <line x1="900" y1="738" x2="1520" y2="738" stroke="#e0e6ee" stroke-width="1"/>
+    <line x1="900" y1="789" x2="1520" y2="789" stroke="#e0e6ee" stroke-width="1"/>
+  </g>
+  <text x="924" y="570" class="icon">🔑</text><text x="980" y="572" class="field">bug_id</text><text x="1472" y="572" class="tag">PK</text>
+  <text x="924" y="621" class="icon">🔑</text><text x="980" y="623" class="field">session_id</text><text x="1472" y="623" class="tag">FK</text>
+  <text x="980" y="674" class="field">описание</text>
+  <text x="980" y="725" class="field">expected</text>
+  <text x="980" y="776" class="field">actual</text>
+  <text x="980" y="827" class="field">ui_element</text>
+
+  <!-- Связи -->
+  <line x1="700" y1="245" x2="900" y2="245" stroke="#697789" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="800" y="229" text-anchor="middle" class="relation">1 ко многим</text>
+
+  <line x1="1210" y1="400" x2="1210" y2="480" stroke="#697789" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="1258" y="447" class="relation">1 ко многим</text>
+
+  <path d="M 700 300 L 820 300 L 820 640 L 900 640" fill="none" stroke="#697789" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="740" y="287" class="relation">1 ко многим</text>
+
+  <line x1="390" y1="450" x2="390" y2="520" stroke="#697789" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="440" y="493" class="relation">1 ко многим</text>
+</svg>
