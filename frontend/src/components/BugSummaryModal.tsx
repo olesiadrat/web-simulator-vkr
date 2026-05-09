@@ -9,7 +9,9 @@ type BugSummaryModalProps = {
   bug: BugSummaryData | null;
   checkResult: BugCheckResult | null;
   checkError: string;
+  actionError: string;
   isChecking: boolean;
+  isSaving: boolean;
   onClose: () => void;
   onConfirmSend: () => void;
   onRequestEdit: () => void;
@@ -24,7 +26,9 @@ export function BugSummaryModal({
   bug,
   checkResult,
   checkError,
+  actionError,
   isChecking,
+  isSaving,
   onClose,
   onConfirmSend,
   onRequestEdit,
@@ -141,8 +145,8 @@ export function BugSummaryModal({
         <button className="secondary-button" type="button" onClick={onClose}>
           Отмена
         </button>
-        <button className="primary-button" type="button" onClick={onConfirmSend}>
-          Подтвердить отправку
+        <button className="primary-button" type="button" onClick={onConfirmSend} disabled={isSaving}>
+          {isSaving ? "Сохраняем..." : "Подтвердить отправку"}
         </button>
       </div>
     ) : mode === "view" ? (
@@ -170,8 +174,8 @@ export function BugSummaryModal({
         >
           Отмена
         </button>
-        <button className="primary-button" type="button" onClick={handleSaveEdit}>
-          Сохранить изменения
+        <button className="primary-button" type="button" onClick={handleSaveEdit} disabled={isSaving}>
+          {isSaving ? "Сохраняем..." : "Сохранить изменения"}
         </button>
       </div>
     );
@@ -251,6 +255,7 @@ export function BugSummaryModal({
           )}
         </div>
 
+        {actionError ? <p className="error">{actionError}</p> : null}
         {primaryActions}
       </section>
     </div>

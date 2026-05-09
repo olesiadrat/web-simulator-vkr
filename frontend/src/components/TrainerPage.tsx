@@ -23,6 +23,7 @@ export function TrainerPage({ scenario, session }: TrainerPageProps) {
   const [formSaveSignal, setFormSaveSignal] = useState(0);
   const [isCheckingBug, setIsCheckingBug] = useState(false);
   const [bugCheckError, setBugCheckError] = useState("");
+  const [bugModalError, setBugModalError] = useState("");
   const [isSavingBug, setIsSavingBug] = useState(false);
 
   const elementOptions = useMemo(() => {
@@ -113,6 +114,7 @@ export function TrainerPage({ scenario, session }: TrainerPageProps) {
     setPreviewBug(form);
     setSelectedBugId(null);
     setBugModalMode("preview");
+    setBugModalError("");
   }
 
   function closeBugModal() {
@@ -120,6 +122,7 @@ export function TrainerPage({ scenario, session }: TrainerPageProps) {
     setPreviewBug(null);
     setSelectedBugId(null);
     setBugCheckError("");
+    setBugModalError("");
     setIsCheckingBug(false);
   }
 
@@ -128,6 +131,7 @@ export function TrainerPage({ scenario, session }: TrainerPageProps) {
       return;
     }
     setIsSavingBug(true);
+    setBugModalError("");
     try {
       const createdBug = await createBugReport({
         session: session.id,
@@ -138,12 +142,15 @@ export function TrainerPage({ scenario, session }: TrainerPageProps) {
         ui_element: previewBug.element,
       });
       setBugs((current) => [normalizeBugReport(createdBug), ...current]);
+      setFormResetSignal((current) => current + 1);
+      setFormSaveSignal((current) => current + 1);
+      closeBugModal();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Не удалось сохранить баг-репорт.";
+      setBugModalError(message);
     } finally {
       setIsSavingBug(false);
     }
-    setFormResetSignal((current) => current + 1);
-    setFormSaveSignal((current) => current + 1);
-    closeBugModal();
   }
 
   function openBugFromList(bug: LocalBugReport) {
@@ -151,6 +158,7 @@ export function TrainerPage({ scenario, session }: TrainerPageProps) {
     setPreviewBug(null);
     setBugModalMode("view");
     setBugCheckError("");
+    setBugModalError("");
   }
 
   function requestBugEdit() {
@@ -158,6 +166,7 @@ export function TrainerPage({ scenario, session }: TrainerPageProps) {
       return;
     }
     setBugModalMode("edit");
+    setBugModalError("");
   }
 
   function cancelBugEdit() {
@@ -172,16 +181,25 @@ export function TrainerPage({ scenario, session }: TrainerPageProps) {
     if (selectedBugId === null) {
       return;
     }
-    const updated = await updateBugReport(selectedBugId, {
-      description: updatedBug.description,
-      reproduction_steps: updatedBug.steps,
-      expected: updatedBug.expected,
-      actual: updatedBug.actual,
-      ui_element: updatedBug.element,
-    });
-    setBugs((current) => current.map((bug) => (bug.id === selectedBugId ? normalizeBugReport(updated) : bug)));
-    setBugCheckError("");
-    setBugModalMode("view");
+    setIsSavingBug(true);
+    setBugModalError("");
+    try {
+      const updated = await updateBugReport(selectedBugId, {
+        description: updatedBug.description,
+        reproduction_steps: updatedBug.steps,
+        expected: updatedBug.expected,
+        actual: updatedBug.actual,
+        ui_element: updatedBug.element,
+      });
+      setBugs((current) => current.map((bug) => (bug.id === selectedBugId ? normalizeBugReport(updated) : bug)));
+      setBugCheckError("");
+      setBugModalMode("view");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Не удалось сохранить изменения.";
+      setBugModalError(message);
+    } finally {
+      setIsSavingBug(false);
+    }
   }
 
   async function checkBug() {
@@ -287,7 +305,9 @@ export function TrainerPage({ scenario, session }: TrainerPageProps) {
         bug={modalBug}
         checkResult={currentCheckResult}
         checkError={bugCheckError}
+        actionError={bugModalError}
         isChecking={isCheckingBug}
+        isSaving={isSavingBug}
         onClose={closeBugModal}
         onConfirmSend={() => void confirmPreviewSubmit()}
         onRequestEdit={requestBugEdit}

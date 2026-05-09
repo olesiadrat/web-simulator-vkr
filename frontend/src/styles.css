@@ -1203,6 +1203,24 @@ p {
   padding-top: 22px;
 }
 
+.session-check-stats {
+  display: grid;
+  gap: 8px;
+  margin: 14px 0 18px;
+}
+
+.session-check-stats span {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid #e1e3de;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #5b6458;
+  background: #fafbf9;
+  font-size: 14px;
+}
+
 .bug-modal-backdrop {
   position: fixed;
   inset: 0;
