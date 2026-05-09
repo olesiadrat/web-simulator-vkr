@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 
-import type { BugModalMode, BugSummaryData } from "../types";
+import type { BugCheckResult, BugModalMode, BugSummaryData } from "../types";
 import { BugSummaryFields, type BugSummaryErrors } from "./BugSummaryFields";
 
 type BugSummaryModalProps = {
   isOpen: boolean;
   mode: BugModalMode;
   bug: BugSummaryData | null;
+  checkResult: BugCheckResult | null;
+  checkError: string;
+  isChecking: boolean;
   onClose: () => void;
   onConfirmSend: () => void;
   onRequestEdit: () => void;
@@ -19,6 +22,9 @@ export function BugSummaryModal({
   isOpen,
   mode,
   bug,
+  checkResult,
+  checkError,
+  isChecking,
   onClose,
   onConfirmSend,
   onRequestEdit,
@@ -144,8 +150,8 @@ export function BugSummaryModal({
         <button className="secondary-button" type="button" onClick={onRequestEdit}>
           Редактировать
         </button>
-        <button className="secondary-button" type="button" onClick={onCheckBug}>
-          Проверить баг
+        <button className="secondary-button" type="button" onClick={onCheckBug} disabled={isChecking}>
+          {isChecking ? "Проверяем..." : "Проверить баг"}
         </button>
         <button className="primary-button" type="button" onClick={onClose}>
           Закрыть
@@ -198,6 +204,51 @@ export function BugSummaryModal({
             onAddStep={handleAddStep}
             onRemoveStep={handleRemoveStep}
           />
+          {!isEditMode && (
+            <section className="bug-check-panel">
+              <div className="bug-check-panel-header">
+                <h3>AI-проверка</h3>
+                <div className="bug-check-panel-meta">
+                  {checkResult && <span className={`bug-check-badge bug-check-badge-${checkResult.status}`}>{getStatusLabel(checkResult.status)}</span>}
+                  {checkResult && <span className="bug-check-source">{checkResult.source === "ai" ? "AI" : "Локальная проверка"}</span>}
+                </div>
+              </div>
+              {checkError ? (
+                <p className="error">{checkError}</p>
+              ) : checkResult ? (
+                <div className="bug-check-content">
+                  <p>
+                    <strong>Оценка:</strong> {checkResult.score}/10
+                  </p>
+                  <p>{checkResult.summary}</p>
+                  <section className="bug-check-section">
+                    <h4>Сильные стороны</h4>
+                    <ul>
+                      {checkResult.strengths.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </section>
+                  <section className="bug-check-section">
+                    <h4>Что улучшить</h4>
+                    <ul>
+                      {checkResult.issues.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </section>
+                  <p>
+                    <strong>Похожий эталонный баг:</strong> {checkResult.matched_reference_bug || "Не найден"}
+                  </p>
+                  <p>
+                    <strong>Рекомендация:</strong> {checkResult.recommendation}
+                  </p>
+                </div>
+              ) : (
+                <p className="muted">Проверка ещё не запускалась.</p>
+              )}
+            </section>
+          )}
         </div>
 
         {primaryActions}
@@ -234,4 +285,14 @@ function getModalTitle(mode: BugModalMode) {
     return "Редактирование бага";
   }
   return "Просмотр бага";
+}
+
+function getStatusLabel(status: BugCheckResult["status"]) {
+  if (status === "valid") {
+    return "Корректно";
+  }
+  if (status === "partially_valid") {
+    return "Частично корректно";
+  }
+  return "Некорректно";
 }

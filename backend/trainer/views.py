@@ -10,6 +10,7 @@ from .serializers import (
     ScenarioSerializer,
     SessionSerializer,
 )
+from .services.bug_check_service import BugCheckServiceError, check_bug_report
 
 
 class ScenarioViewSet(viewsets.ReadOnlyModelViewSet):
@@ -32,7 +33,7 @@ class SessionViewSet(viewsets.ModelViewSet):
 
 class BugReportViewSet(viewsets.ModelViewSet):
     serializer_class = BugReportSerializer
-    http_method_names = ["get", "post", "head", "options"]
+    http_method_names = ["get", "post", "patch", "head", "options"]
 
     def get_queryset(self):
         queryset = BugReport.objects.select_related("session", "session__scenario").all()
@@ -47,6 +48,54 @@ class BugReportViewSet(viewsets.ModelViewSet):
         self.perform_create(serializer)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    @action(detail=True, methods=["post"])
+    def check(self, request, pk=None):
+        bug_report = self.get_object()
+        reference_bugs = list(
+            ReferenceBug.objects.filter(scenario=bug_report.session.scenario)
+            .values("ui_element", "description", "expected_behavior")
+        )
+        bug_data = {
+            "element": bug_report.ui_element,
+            "description": bug_report.description,
+            "steps": bug_report.reproduction_steps,
+            "expected": bug_report.expected,
+            "actual": bug_report.actual,
+        }
+
+        try:
+            result = check_bug_report(
+                scenario=bug_report.session.scenario,
+                reference_bugs=reference_bugs,
+                bug_data=bug_data,
+            )
+        except BugCheckServiceError as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+        bug_report.check_status = result["status"]
+        bug_report.check_score = result["score"]
+        bug_report.check_summary = result["summary"]
+        bug_report.check_strengths = result["strengths"]
+        bug_report.check_issues = result["issues"]
+        bug_report.check_recommendation = result["recommendation"]
+        bug_report.matched_reference_bug = result["matched_reference_bug"]
+        bug_report.check_source = result["source"]
+        bug_report.checked_at = timezone.now()
+        bug_report.save(
+            update_fields=[
+                "check_status",
+                "check_score",
+                "check_summary",
+                "check_strengths",
+                "check_issues",
+                "check_recommendation",
+                "matched_reference_bug",
+                "check_source",
+                "checked_at",
+            ]
+        )
+        return Response(self.get_serializer(bug_report).data, status=status.HTTP_200_OK)
+
 
 class ReferenceBugViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ReferenceBugSerializer
@@ -57,4 +106,3 @@ class ReferenceBugViewSet(viewsets.ReadOnlyModelViewSet):
         if scenario_id:
             queryset = queryset.filter(scenario_id=scenario_id)
         return queryset
-

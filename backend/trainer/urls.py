@@ -10,4 +10,3 @@ router.register("bugs", BugReportViewSet, basename="bug")
 router.register("reference-bugs", ReferenceBugViewSet, basename="reference-bug")
 
 urlpatterns = router.urls
-

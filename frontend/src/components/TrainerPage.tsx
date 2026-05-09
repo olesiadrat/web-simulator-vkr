@@ -1,7 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import { finishSession } from "../api";
-import type { BugModalMode, LocalBugReport, Scenario, ScenarioElement, TrainerSession } from "../types";
+import { checkBugReport, createBugReport, finishSession, getBugReports, updateBugReport } from "../api";
+import type { ApiBugReport, BugCheckResult, BugModalMode, LocalBugReport, Scenario, ScenarioElement, TrainerSession } from "../types";
 import { BugReportForm, type LocalBugDraft } from "./BugReportForm";
 import { BugReportList } from "./BugReportList";
 import { BugSummaryModal } from "./BugSummaryModal";
@@ -21,6 +21,9 @@ export function TrainerPage({ scenario, session }: TrainerPageProps) {
   const [bugModalMode, setBugModalMode] = useState<BugModalMode | null>(null);
   const [formResetSignal, setFormResetSignal] = useState(0);
   const [formSaveSignal, setFormSaveSignal] = useState(0);
+  const [isCheckingBug, setIsCheckingBug] = useState(false);
+  const [bugCheckError, setBugCheckError] = useState("");
+  const [isSavingBug, setIsSavingBug] = useState(false);
 
   const elementOptions = useMemo(() => {
     return scenario.json_structure.pages.flatMap((page) => {
@@ -100,6 +103,12 @@ export function TrainerPage({ scenario, session }: TrainerPageProps) {
     return selectedBug;
   }, [bugModalMode, previewBug, selectedBug]);
 
+  const currentCheckResult = selectedBug?.checkResult ?? null;
+
+  useEffect(() => {
+    void refreshBugs();
+  }, [session.id]);
+
   function showPreviewModal(form: LocalBugDraft) {
     setPreviewBug(form);
     setSelectedBugId(null);
@@ -110,19 +119,28 @@ export function TrainerPage({ scenario, session }: TrainerPageProps) {
     setBugModalMode(null);
     setPreviewBug(null);
     setSelectedBugId(null);
+    setBugCheckError("");
+    setIsCheckingBug(false);
   }
 
-  function confirmPreviewSubmit() {
+  async function confirmPreviewSubmit() {
     if (!previewBug) {
       return;
     }
-
-    const createdBug: LocalBugReport = {
-      ...previewBug,
-      id: Date.now(),
-    };
-    console.log("Saved local bug", createdBug);
-    setBugs((current) => [createdBug, ...current]);
+    setIsSavingBug(true);
+    try {
+      const createdBug = await createBugReport({
+        session: session.id,
+        description: previewBug.description,
+        reproduction_steps: previewBug.steps,
+        expected: previewBug.expected,
+        actual: previewBug.actual,
+        ui_element: previewBug.element,
+      });
+      setBugs((current) => [normalizeBugReport(createdBug), ...current]);
+    } finally {
+      setIsSavingBug(false);
+    }
     setFormResetSignal((current) => current + 1);
     setFormSaveSignal((current) => current + 1);
     closeBugModal();
@@ -132,6 +150,7 @@ export function TrainerPage({ scenario, session }: TrainerPageProps) {
     setSelectedBugId(bug.id);
     setPreviewBug(null);
     setBugModalMode("view");
+    setBugCheckError("");
   }
 
   function requestBugEdit() {
@@ -149,33 +168,43 @@ export function TrainerPage({ scenario, session }: TrainerPageProps) {
     setBugModalMode("view");
   }
 
-  function saveBugEdit(updatedBug: LocalBugDraft) {
+  async function saveBugEdit(updatedBug: LocalBugDraft) {
     if (selectedBugId === null) {
       return;
     }
-
-    setBugs((current) =>
-      current.map((bug) =>
-        bug.id === selectedBugId
-          ? {
-              ...bug,
-              ...updatedBug,
-            }
-          : bug,
-      ),
-    );
+    const updated = await updateBugReport(selectedBugId, {
+      description: updatedBug.description,
+      reproduction_steps: updatedBug.steps,
+      expected: updatedBug.expected,
+      actual: updatedBug.actual,
+      ui_element: updatedBug.element,
+    });
+    setBugs((current) => current.map((bug) => (bug.id === selectedBugId ? normalizeBugReport(updated) : bug)));
+    setBugCheckError("");
     setBugModalMode("view");
   }
 
-  function checkBugStub() {
-    if (!modalBug) {
+  async function checkBug() {
+    if (!selectedBug) {
       return;
     }
-    console.log("check bug stub", modalBug);
+    setIsCheckingBug(true);
+    setBugCheckError("");
+
+    try {
+      const updatedBug = await checkBugReport(selectedBug.id);
+      setBugs((current) => current.map((bug) => (bug.id === selectedBug.id ? normalizeBugReport(updatedBug) : bug)));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Не удалось выполнить AI-проверку.";
+      setBugCheckError(message);
+    } finally {
+      setIsCheckingBug(false);
+    }
   }
 
-  function refreshBugs() {
-    setBugs((current) => [...current]);
+  async function refreshBugs() {
+    const nextBugs = await getBugReports(session.id);
+    setBugs(nextBugs.map(normalizeBugReport));
   }
 
   async function completeSession() {
@@ -183,6 +212,11 @@ export function TrainerPage({ scenario, session }: TrainerPageProps) {
     setFinishedSession(nextSession);
     refreshBugs();
   }
+
+  const checkedBugs = bugs.filter((bug) => bug.checkResult !== null);
+  const validChecks = checkedBugs.filter((bug) => bug.checkResult?.status === "valid").length;
+  const partialChecks = checkedBugs.filter((bug) => bug.checkResult?.status === "partially_valid").length;
+  const invalidChecks = checkedBugs.filter((bug) => bug.checkResult?.status === "invalid").length;
 
   return (
     <section className="trainer-shell">
@@ -230,6 +264,12 @@ export function TrainerPage({ scenario, session }: TrainerPageProps) {
             <p className="muted">
               Сохранено баг-репортов: <strong>{bugs.length}</strong>
             </p>
+            <div className="session-check-stats">
+              <span>Проверено: <strong>{checkedBugs.length}</strong></span>
+              <span>Корректно: <strong>{validChecks}</strong></span>
+              <span>Частично: <strong>{partialChecks}</strong></span>
+              <span>Некорректно: <strong>{invalidChecks}</strong></span>
+            </div>
             {finishedSession ? (
               <p className="success">Сессия завершена. Можно перейти к анализу результатов.</p>
             ) : (
@@ -245,12 +285,15 @@ export function TrainerPage({ scenario, session }: TrainerPageProps) {
         isOpen={bugModalMode !== null && modalBug !== null}
         mode={bugModalMode ?? "preview"}
         bug={modalBug}
+        checkResult={currentCheckResult}
+        checkError={bugCheckError}
+        isChecking={isCheckingBug}
         onClose={closeBugModal}
-        onConfirmSend={confirmPreviewSubmit}
+        onConfirmSend={() => void confirmPreviewSubmit()}
         onRequestEdit={requestBugEdit}
         onCancelEdit={cancelBugEdit}
-        onSaveEdit={saveBugEdit}
-        onCheckBug={checkBugStub}
+        onSaveEdit={(bug) => void saveBugEdit(bug)}
+        onCheckBug={() => void checkBug()}
       />
     </section>
   );
@@ -278,4 +321,29 @@ function getElementOptionLabel(element: ScenarioElement) {
   }
 
   return getElementLabel(element);
+}
+
+function normalizeBugReport(bug: ApiBugReport): LocalBugReport {
+  return {
+    id: bug.id,
+    sessionId: bug.session,
+    description: bug.description,
+    steps: bug.reproduction_steps ?? [],
+    expected: bug.expected,
+    actual: bug.actual,
+    element: bug.ui_element,
+    createdAt: bug.created_at,
+    checkResult: bug.check_status
+      ? {
+          status: bug.check_status,
+          score: bug.check_score ?? 0,
+          summary: bug.check_summary,
+          strengths: bug.check_strengths ?? [],
+          issues: bug.check_issues ?? [],
+          recommendation: bug.check_recommendation,
+          matched_reference_bug: bug.matched_reference_bug,
+          source: bug.check_source || "fallback",
+        }
+      : null,
+  };
 }

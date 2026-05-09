@@ -20,8 +20,38 @@ class SessionSerializer(serializers.ModelSerializer):
 class BugReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = BugReport
-        fields = ["id", "session", "description", "expected", "actual", "ui_element", "created_at"]
-        read_only_fields = ["id", "created_at"]
+        fields = [
+            "id",
+            "session",
+            "description",
+            "reproduction_steps",
+            "expected",
+            "actual",
+            "ui_element",
+            "check_status",
+            "check_score",
+            "check_summary",
+            "check_strengths",
+            "check_issues",
+            "check_recommendation",
+            "matched_reference_bug",
+            "check_source",
+            "checked_at",
+            "created_at",
+        ]
+        read_only_fields = [
+            "id",
+            "check_status",
+            "check_score",
+            "check_summary",
+            "check_strengths",
+            "check_issues",
+            "check_recommendation",
+            "matched_reference_bug",
+            "check_source",
+            "checked_at",
+            "created_at",
+        ]
 
 
 class ReferenceBugSerializer(serializers.ModelSerializer):
@@ -29,4 +59,3 @@ class ReferenceBugSerializer(serializers.ModelSerializer):
         model = ReferenceBug
         fields = ["id", "scenario", "description", "expected_behavior", "ui_element"]
         read_only_fields = ["id"]
-

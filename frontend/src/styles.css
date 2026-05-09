@@ -1292,6 +1292,81 @@ p {
   margin-top: 2px;
 }
 
+.bug-check-panel {
+  margin-top: 14px;
+  border: 1px solid #e1e3de;
+  border-radius: 8px;
+  padding: 14px;
+  background: #fbfcfa;
+}
+
+.bug-check-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.bug-check-panel-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.bug-check-panel-header h3,
+.bug-check-section h4 {
+  margin-bottom: 0;
+  color: #4f4f4f;
+  font-size: 14px;
+}
+
+.bug-check-content {
+  display: grid;
+  gap: 10px;
+}
+
+.bug-check-content p {
+  margin-bottom: 0;
+  white-space: pre-wrap;
+}
+
+.bug-check-section ul {
+  margin: 6px 0 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 6px;
+}
+
+.bug-check-badge {
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.bug-check-source {
+  color: #7b7b7b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.bug-check-badge-valid {
+  color: #335d32;
+  background: #e8f4e7;
+}
+
+.bug-check-badge-partially_valid {
+  color: #7a5b1a;
+  background: #f7efd9;
+}
+
+.bug-check-badge-invalid {
+  color: #8a2f2f;
+  background: #fde9e9;
+}
+
 .bug-modal-actions {
   display: flex;
   justify-content: flex-end;

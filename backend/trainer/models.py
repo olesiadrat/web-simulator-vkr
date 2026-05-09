@@ -29,9 +29,19 @@ class Session(models.Model):
 class BugReport(models.Model):
     session = models.ForeignKey(Session, on_delete=models.CASCADE, related_name="bug_reports")
     description = models.TextField()
+    reproduction_steps = models.JSONField(default=list, blank=True)
     expected = models.TextField()
     actual = models.TextField()
     ui_element = models.CharField(max_length=255, blank=True)
+    check_status = models.CharField(max_length=32, blank=True)
+    check_score = models.PositiveSmallIntegerField(null=True, blank=True)
+    check_summary = models.TextField(blank=True)
+    check_strengths = models.JSONField(default=list, blank=True)
+    check_issues = models.JSONField(default=list, blank=True)
+    check_recommendation = models.TextField(blank=True)
+    matched_reference_bug = models.TextField(blank=True)
+    check_source = models.CharField(max_length=32, blank=True)
+    checked_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -52,4 +62,3 @@ class ReferenceBug(models.Model):
 
     def __str__(self):
         return f"Reference bug for {self.scenario}"
-
